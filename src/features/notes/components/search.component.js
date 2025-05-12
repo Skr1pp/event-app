@@ -31,12 +31,12 @@ export const Search = () => {
         }}
         inputStyle={{
           paddingBottom: 8,
-          color: theme.colors.text.primary,
+          color: "#ffffff",
 
           textAlignVertical: "center",
         }}
-        placeholderTextColor={theme.colors.text.disabled}
-        cursorColor={theme.colors.text.primary}
+        placeholderTextColor="#ffffff"
+        cursorColor="#ffffff"
         value={searchKeyword}
         onSubmitEditing={() => {
           search(searchKeyword);

@@ -115,11 +115,16 @@ const BottomBar = styled.View`
   left: 0;
   right: 0;
   height: 60px;
-  background-color: #ffffff;
+  background-color: #ffffff; // Или #f5f5f5 для легкого серого
   justify-content: center;
   align-items: center;
   border-top-width: 1px;
   border-color: #ddd;
+  elevation: 8; // Добавляем тень на Android
+  shadow-color: #000;
+  shadow-offset: { width: 0, height: -2 };
+  shadow-opacity: 0.1;
+  shadow-radius: 4;
 `;
 
 export const CustomNoteCard = ({ title, paragraph, date, onPress, image }) => {
@@ -183,11 +188,12 @@ export const NotesScreen = ({ navigation }) => {
   const [allNotesSelected, setAllNotesSelected] = useState(false);
 
   const toggleSelectionMode = () => {
+    console.log("Toggle Selection Mode:", !selectionMode);
     setSelectionMode(!selectionMode);
-    setSelectedNotes([]);
   };
 
   const toggleNoteSelection = (noteId) => {
+    console.log("Toggle Note Selection for ID:", noteId);
     if (selectedNotes.includes(noteId)) {
       setSelectedNotes(selectedNotes.filter((id) => id !== noteId));
     } else {
@@ -302,50 +308,49 @@ export const NotesScreen = ({ navigation }) => {
                       navigation.navigate("EditNote", { noteId: item.id });
                     }
                   }}
+                  style={{ flex: 1 }} // Захватывает всю площадь
                 >
-                  <View>
-                    {selectionMode && (
-                      <View style={styles.noteSelectedIcon}>
-                        <Ionicons
-                          name={
-                            selectedNotes.includes(item.id)
-                              ? "checkmark-circle"
-                              : "ellipse"
-                          }
-                          size={24}
-                          color={
-                            selectedNotes.includes(item.id) ? "#2182BD" : "grey"
-                          }
-                          style={{ marginRight: 8 }}
-                        />
-                      </View>
-                    )}
-                    <CustomNoteCard
-                      id={item.id}
-                      title={item.title}
-                      paragraph={item.content}
-                      date={formatDate(new Date(item.date))}
-                      image={item.image} // ⬅️ ВАЖНО! Добавляем эту строку
-                      onPress={() => {
-                        if (!selectionMode) {
-                          navigation.navigate("EditNote", { noteId: item.id });
+                  {selectionMode && (
+                    <View style={styles.noteSelectedIcon}>
+                      <Ionicons
+                        name={
+                          selectedNotes.includes(item.id)
+                            ? "checkmark-circle"
+                            : "ellipse"
                         }
-                      }}
-                      keyword={keyword}
-                      selected={selectedNotes.includes(item.id)}
-                      ListEmptyComponent={
-                        <Text
-                          style={{
-                            textAlign: "center",
-                            marginTop: 10,
-                            color: theme.colors.text.primary,
-                          }}
-                        >
-                          No notes available
-                        </Text>
+                        size={24}
+                        color={
+                          selectedNotes.includes(item.id) ? "#2182BD" : "grey"
+                        }
+                        style={{ marginRight: 8 }}
+                      />
+                    </View>
+                  )}
+                  <CustomNoteCard
+                    id={item.id}
+                    title={item.title}
+                    paragraph={item.content}
+                    date={formatDate(new Date(item.date))}
+                    image={item.image}
+                    onPress={() => {
+                      if (!selectionMode) {
+                        navigation.navigate("EditNote", { noteId: item.id });
                       }
-                    />
-                  </View>
+                    }}
+                    keyword={keyword}
+                    selected={selectedNotes.includes(item.id)}
+                    ListEmptyComponent={
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          marginTop: 10,
+                          color: theme.colors.text.primary,
+                        }}
+                      >
+                        No notes available
+                      </Text>
+                    }
+                  />
                 </TouchableOpacity>
               </View>
             )}
@@ -368,8 +373,8 @@ export const NotesScreen = ({ navigation }) => {
             <TouchableOpacity onPress={deleteSelectedNotes}>
               <Ionicons
                 name="trash"
-                size={24}
-                color={theme.colors.text.secondary}
+                size={28}
+                color="#2182BD" // Ярко-красная корзина, можно выбрать другой цвет
               />
             </TouchableOpacity>
           </BottomBar>
