@@ -1,9 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
 import { Text, View, TextInput, Keyboard } from "react-native";
 
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
@@ -39,6 +40,10 @@ const Loading = styled.ActivityIndicator`
 
 export const EditNoteScreen = ({ route, navigation }) => {
   const [imageUri, setImageUri] = useState(null);
+  const [checklist, setChecklist] = useState([]);
+  const [hasSaved, setHasSaved] = useState(false);
+  const [deadline, setDeadline] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -110,60 +115,79 @@ export const EditNoteScreen = ({ route, navigation }) => {
   }, [contentUndoStack, contentRedoStack]);
 
   const fetchNoteData = async () => {
-    console.log("fetching note data ", id);
     const noteData = await getNote(id);
     if (noteData != null) {
-      console.log("fetchNoteData data:", noteData);
       setTitle(noteData.title);
       setContent(noteData.content);
       setDate(new Date(noteData.date));
+      setChecklist(noteData.checklist || []);
+      if (noteData.deadline) {
+        setDeadline(new Date(noteData.deadline));
+      } else {
+        setDeadline(null);
+      }
 
       if (noteData.image) {
-        setImageUri(noteData.image); // <- ВОТ СЮДА
+        setImageUri(noteData.image);
       }
 
       setNewNote(false);
     } else {
-      console.log("fetchNoteData null");
       setNewNote(true);
     }
   };
 
-  handleFinishEdit = () => {
-    if (title === "" && content === "") {
+  const handleFinishEdit = useCallback(() => {
+    if (title === "" && content === "" && checklist.length === 0) {
       console.log("removing note");
       if (!newNote) {
         removeNote(id);
       }
+      return;
     } else {
+      const noteData = {
+        id,
+        title,
+        content,
+        date: new Date(Date.now()),
+        image: imageUri,
+        checklist,
+        deadline,
+      };
+
       if (newNote) {
-        addNote({
-          id,
-          title,
-          content,
-          date: new Date(Date.now()),
-          image: imageUri,
-        });
+        addNote(noteData);
       } else {
-        updateNote({
-          id,
-          title,
-          content,
-          date: new Date(Date.now()),
-          image: imageUri,
-        });
+        updateNote(noteData);
       }
     }
-  };
+  }, [
+    id,
+    title,
+    content,
+    imageUri,
+    checklist,
+    newNote,
+    addNote,
+    updateNote,
+    removeNote,
+  ]);
 
+  useEffect(() => {
+    if (!isFocused && !hasSaved) {
+      console.log("Navigated away from EditNoteScreen");
+      handleFinishEdit();
+      setHasSaved(true);
+    }
+  }, [isFocused, hasSaved]);
   useEffect(() => {
     fetchNoteData();
   }, [id]);
 
+  // 👉 Добавляешь вот это:
   useEffect(() => {
-    if (!isFocused) {
-      console.log("Navigated away from EditNoteScreen");
-      handleFinishEdit();
+    if (isFocused) {
+      setHasSaved(false); // Готов к следующему сохранению при следующем выходе
     }
   }, [isFocused]);
 
@@ -211,6 +235,109 @@ export const EditNoteScreen = ({ route, navigation }) => {
                   placeholderTextColor={theme.colors.text.secondary}
                 />
               </NoteContainer>
+              <View style={{ margin: 16 }}>
+                {checklist.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        const updated = [...checklist];
+                        updated[index].done = !updated[index].done;
+                        setChecklist(updated);
+                      }}
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 12,
+                        borderWidth: 2,
+                        borderColor: "#2182BD",
+                        backgroundColor: item.done ? "#2182BD" : "transparent",
+                        marginRight: 8,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      {item.done && (
+                        <Ionicons name="checkmark" size={16} color="white" />
+                      )}
+                    </TouchableOpacity>
+
+                    <TextInput
+                      value={item.text}
+                      onChangeText={(text) => {
+                        const updated = [...checklist];
+                        updated[index].text = text;
+                        setChecklist(updated);
+                      }}
+                      placeholder="Введите задачу..."
+                      style={{
+                        borderBottomWidth: 1,
+                        flex: 1,
+                        color: theme.colors.text.primary,
+                        paddingVertical: 4,
+                      }}
+                      placeholderTextColor={theme.colors.text.secondary}
+                    />
+                  </View>
+                ))}
+
+                <TouchableOpacity
+                  onPress={() =>
+                    setChecklist([...checklist, { text: "", done: false }])
+                  }
+                  style={{
+                    backgroundColor: "#2182BD",
+                    padding: 12,
+                    borderRadius: 12,
+                    alignItems: "center",
+                    marginTop: 16,
+                  }}
+                >
+                  <Text style={{ color: "white", fontWeight: "bold" }}>
+                    Добавить задачу
+                  </Text>
+                </TouchableOpacity>
+
+                {/* ✅ Оставляем только одну кнопку для дедлайна */}
+                <TouchableOpacity
+                  onPress={() => setShowDatePicker(true)}
+                  style={{
+                    backgroundColor: "#2182BD",
+                    padding: 12,
+                    borderRadius: 12,
+                    alignItems: "center",
+                    marginTop: 16,
+                  }}
+                >
+                  <Ionicons name="calendar-outline" size={24} color="white" />
+                  <Text
+                    style={{ color: "white", marginTop: 8, fontWeight: "bold" }}
+                  >
+                    {deadline
+                      ? `Дедлайн: ${deadline.toLocaleDateString()}`
+                      : "Добавить дедлайн"}
+                  </Text>
+                </TouchableOpacity>
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={deadline || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(false);
+                      if (selectedDate) setDeadline(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
+
               <TouchableOpacity
                 onPress={pickImage}
                 style={{

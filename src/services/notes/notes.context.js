@@ -66,9 +66,10 @@ export const NotesContextProvider = ({ children }) => {
   const addNote = async (note) => {
     const finalNote = {
       ...note,
-      id: note.id || uuidv4(), // Используем существующий id или создаём новый
+      id: note.id || uuidv4(),
       date: note.date || new Date(),
       image: note.image || null,
+      deadline: note.deadline || null, // ✅ Добавляем сюда дедлайн
     };
 
     const newNotes = [...notes, finalNote];
@@ -99,11 +100,17 @@ export const NotesContextProvider = ({ children }) => {
     const noteIndex = notes.findIndex((n) => n.id === note.id);
     if (noteIndex !== -1) {
       const updatedNotes = [...notes];
-      updatedNotes[noteIndex] = note;
+      updatedNotes[noteIndex] = {
+        ...note,
+        deadline: note.deadline || null, // ✅ Сохраняем дедлайн при обновлении
+      };
       setNotes(updatedNotes);
       console.log("примечание обновлено", notes);
 
-      await AsyncStorage.setItem(`@note-${note.id}`, JSON.stringify(note));
+      await AsyncStorage.setItem(
+        `@note-${note.id}`,
+        JSON.stringify(updatedNotes[noteIndex])
+      );
       console.log("примечание обновлено");
     }
   };

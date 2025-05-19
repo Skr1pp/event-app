@@ -32,7 +32,6 @@ export const Search = () => {
         inputStyle={{
           paddingBottom: 8,
           color: "#ffffff",
-
           textAlignVertical: "center",
         }}
         placeholderTextColor="#ffffff"
@@ -43,6 +42,7 @@ export const Search = () => {
         }}
         onChangeText={(text) => {
           setSearchKeyword(text);
+          search(text);
         }}
       />
     </SearchContainer>

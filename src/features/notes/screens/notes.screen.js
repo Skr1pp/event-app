@@ -127,7 +127,14 @@ const BottomBar = styled.View`
   shadow-radius: 4;
 `;
 
-export const CustomNoteCard = ({ title, paragraph, date, onPress, image }) => {
+export const CustomNoteCard = ({
+  title,
+  paragraph,
+  date,
+  onPress,
+  image,
+  checklist,
+}) => {
   return (
     <CardContainer onPress={onPress} activeOpacity={0.9}>
       {image && ( // ✅ Добавляем блок для отображения изображения
@@ -149,6 +156,36 @@ export const CustomNoteCard = ({ title, paragraph, date, onPress, image }) => {
         <NoteTitle>{title}</NoteTitle>
       </CardHeader>
       <NoteContent numberOfLines={3}>{paragraph}</NoteContent>
+      {checklist && checklist.length > 0 && (
+        <Spacer position="top" size="small" />
+      )}
+      {checklist.map((task, idx) => (
+        <View
+          key={idx}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginVertical: 2,
+          }}
+        >
+          <Ionicons
+            name={task.done ? "checkmark-circle" : "ellipse"}
+            size={16}
+            color={task.done ? "#2182BD" : "grey"}
+            style={{ marginRight: 4 }}
+          />
+          <Text
+            style={{
+              textDecorationLine: task.done ? "line-through" : "none",
+              color: "#555",
+              fontSize: 12,
+            }}
+          >
+            {task.text}
+          </Text>
+        </View>
+      ))}
+
       <Footer>
         <DateText>{date}</DateText>
         <ActionButton onPress={onPress}>
@@ -332,6 +369,7 @@ export const NotesScreen = ({ navigation }) => {
                     paragraph={item.content}
                     date={formatDate(new Date(item.date))}
                     image={item.image}
+                    checklist={item.checklist} // ✅ вот это не забудь передать!
                     onPress={() => {
                       if (!selectionMode) {
                         navigation.navigate("EditNote", { noteId: item.id });
@@ -339,17 +377,6 @@ export const NotesScreen = ({ navigation }) => {
                     }}
                     keyword={keyword}
                     selected={selectedNotes.includes(item.id)}
-                    ListEmptyComponent={
-                      <Text
-                        style={{
-                          textAlign: "center",
-                          marginTop: 10,
-                          color: theme.colors.text.primary,
-                        }}
-                      >
-                        No notes available
-                      </Text>
-                    }
                   />
                 </TouchableOpacity>
               </View>

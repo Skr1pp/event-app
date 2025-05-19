@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components/native";
 import { useTheme } from "styled-components";
 import { Spacer } from "../../../components/spacer/spacer.component";
+import { Ionicons } from "@expo/vector-icons"; // Не забудь про этот импорт!
 
 const Highlight = styled.Text`
   color: tomato;
@@ -17,8 +18,8 @@ const CardContainer = styled.TouchableOpacity`
   shadow-radius: 8px;
   elevation: 4;
   margin: 12px;
-  width: 160px; // фиксированная ширина для ровных колонок
-  align-items: center; // всё строго по центру
+  width: 160px;
+  align-items: center;
 `;
 
 const NoteTitle = styled.Text.attrs({
@@ -64,8 +65,16 @@ const highlightKeyword = (text, keyword) => {
   );
 };
 
-export const NoteCard = ({ title, paragraph, date, onPress, keyword }) => {
+export const NoteCard = ({
+  title,
+  paragraph,
+  date,
+  onPress,
+  keyword,
+  checklist = [],
+}) => {
   const theme = useTheme();
+
   return (
     <CardContainer
       onPress={onPress}
@@ -77,6 +86,36 @@ export const NoteCard = ({ title, paragraph, date, onPress, keyword }) => {
       <NoteContent numberOfLines={5}>
         {highlightKeyword(paragraph, keyword)}
       </NoteContent>
+
+      {/* ✅ Чеклист вставляем сюда */}
+      {checklist.length > 0 && <Spacer position="top" size="small" />}
+      {checklist.map((task, idx) => (
+        <View
+          key={idx}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginVertical: 2,
+          }}
+        >
+          <Ionicons
+            name={task.done ? "checkmark-circle" : "ellipse"}
+            size={16}
+            color={task.done ? "#2182BD" : "grey"}
+            style={{ marginRight: 4 }}
+          />
+          <NoteContent
+            style={{
+              textDecorationLine: task.done ? "line-through" : "none",
+              color: "#555",
+              fontSize: 12,
+            }}
+          >
+            {task.text}
+          </NoteContent>
+        </View>
+      ))}
+
       <NoteDate>{date}</NoteDate>
     </CardContainer>
   );
