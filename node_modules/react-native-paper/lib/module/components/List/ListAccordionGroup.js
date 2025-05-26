@@ -6,10 +6,6 @@ export const ListAccordionGroupContext = /*#__PURE__*/React.createContext(null);
  * List.AccordionGroup can be a controlled or uncontrolled component. The example shows the uncontrolled version.
  * At most one Accordion can be expanded at a given time.
  *
- * <div class="screenshots">
- *   <img class="medium" src="screenshots/list-accordion-group.png" />
- * </div>
- *
  * ## Usage
  * ```js
  * import * as React from 'react';
@@ -38,12 +34,11 @@ export const ListAccordionGroupContext = /*#__PURE__*/React.createContext(null);
  * export default MyComponent;
  *```
  */
-const ListAccordionGroup = _ref => {
-  let {
-    expandedId: expandedIdProp,
-    onAccordionPress,
-    children
-  } = _ref;
+const ListAccordionGroup = ({
+  expandedId: expandedIdProp,
+  onAccordionPress,
+  children
+}) => {
   const [expandedId, setExpandedId] = React.useState(undefined);
   const onAccordionPressDefault = newExpandedId => {
     setExpandedId(currentExpandedId => currentExpandedId === newExpandedId ? undefined : newExpandedId);

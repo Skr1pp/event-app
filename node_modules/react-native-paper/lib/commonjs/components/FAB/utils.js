@@ -3,19 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getFabStyle = exports.getFABGroupColors = exports.getFABColors = exports.getExtendedFabStyle = exports.getCombinedStyles = void 0;
+exports.getLabelSizeWeb = exports.getFabStyle = exports.getFABGroupColors = exports.getFABColors = exports.getExtendedFabStyle = exports.getCombinedStyles = void 0;
 var _reactNative = require("react-native");
 var _color = _interopRequireDefault(require("color"));
 var _colors = require("../../styles/themes/v2/colors");
 var _getContrastingColor = _interopRequireDefault(require("../../utils/getContrastingColor"));
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-const getCombinedStyles = _ref => {
-  let {
-    isAnimatedFromRight,
-    isIconStatic,
-    distance,
-    animFAB
-  } = _ref;
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
+const getCombinedStyles = ({
+  isAnimatedFromRight,
+  isIconStatic,
+  distance,
+  animFAB
+}) => {
   const {
     isRTL
   } = _reactNative.I18nManager;
@@ -110,14 +109,13 @@ const getCombinedStyles = _ref => {
   return combinedStyles;
 };
 exports.getCombinedStyles = getCombinedStyles;
-const getBackgroundColor = _ref2 => {
+const getBackgroundColor = ({
+  theme,
+  isVariant,
+  disabled,
+  customBackgroundColor
+}) => {
   var _theme$colors;
-  let {
-    theme,
-    isVariant,
-    disabled,
-    customBackgroundColor
-  } = _ref2;
   if (customBackgroundColor && !disabled) {
     return customBackgroundColor;
   }
@@ -148,14 +146,13 @@ const getBackgroundColor = _ref2 => {
   //@ts-ignore
   return (_theme$colors = theme.colors) === null || _theme$colors === void 0 ? void 0 : _theme$colors.accent;
 };
-const getForegroundColor = _ref3 => {
-  let {
-    theme,
-    isVariant,
-    disabled,
-    backgroundColor,
-    customColor
-  } = _ref3;
+const getForegroundColor = ({
+  theme,
+  isVariant,
+  disabled,
+  backgroundColor,
+  customColor
+}) => {
   if (typeof customColor !== 'undefined' && !disabled) {
     return customColor;
   }
@@ -187,14 +184,14 @@ const getForegroundColor = _ref3 => {
   }
   return (0, _getContrastingColor.default)(_colors.white, _colors.white, 'rgba(0, 0, 0, .54)');
 };
-const getFABColors = _ref4 => {
-  let {
-    theme,
-    variant,
-    disabled,
-    customColor,
-    customBackgroundColor
-  } = _ref4;
+const getFABColors = ({
+  theme,
+  variant,
+  disabled,
+  customColor,
+  customBackgroundColor,
+  customRippleColor
+}) => {
   const isVariant = variantToCompare => {
     return variant === variantToCompare;
   };
@@ -215,14 +212,13 @@ const getFABColors = _ref4 => {
   return {
     backgroundColor,
     foregroundColor,
-    rippleColor: (0, _color.default)(foregroundColor).alpha(0.12).rgb().string()
+    rippleColor: customRippleColor || (0, _color.default)(foregroundColor).alpha(0.12).rgb().string()
   };
 };
 exports.getFABColors = getFABColors;
-const getLabelColor = _ref5 => {
-  let {
-    theme
-  } = _ref5;
+const getLabelColor = ({
+  theme
+}) => {
   if (theme.isV3) {
     return theme.colors.onSurface;
   }
@@ -231,12 +227,11 @@ const getLabelColor = _ref5 => {
   }
   return (0, _color.default)(theme.colors.text).fade(0.54).rgb().string();
 };
-const getBackdropColor = _ref6 => {
+const getBackdropColor = ({
+  theme,
+  customBackdropColor
+}) => {
   var _theme$colors2;
-  let {
-    theme,
-    customBackdropColor
-  } = _ref6;
   if (customBackdropColor) {
     return customBackdropColor;
   }
@@ -245,20 +240,18 @@ const getBackdropColor = _ref6 => {
   }
   return (_theme$colors2 = theme.colors) === null || _theme$colors2 === void 0 ? void 0 : _theme$colors2.backdrop;
 };
-const getStackedFABBackgroundColor = _ref7 => {
-  let {
-    theme
-  } = _ref7;
+const getStackedFABBackgroundColor = ({
+  theme
+}) => {
   if (theme.isV3) {
     return theme.colors.elevation.level3;
   }
   return theme.colors.surface;
 };
-const getFABGroupColors = _ref8 => {
-  let {
-    theme,
-    customBackdropColor
-  } = _ref8;
+const getFABGroupColors = ({
+  theme,
+  customBackdropColor
+}) => {
   return {
     labelColor: getLabelColor({
       theme
@@ -298,14 +291,13 @@ const v3LargeSize = {
 const getCustomFabSize = (customSize, roundness) => ({
   height: customSize,
   width: customSize,
-  borderRadius: customSize / roundness
+  borderRadius: roundness === 0 ? 0 : customSize / roundness
 });
-const getFabStyle = _ref9 => {
-  let {
-    size,
-    theme,
-    customSize
-  } = _ref9;
+const getFabStyle = ({
+  size,
+  theme,
+  customSize
+}) => {
   const {
     isV3,
     roundness
@@ -349,11 +341,10 @@ const getExtendedFabDimensions = customSize => ({
   height: customSize,
   paddingHorizontal: 16
 });
-const getExtendedFabStyle = _ref10 => {
-  let {
-    customSize,
-    theme
-  } = _ref10;
+const getExtendedFabStyle = ({
+  customSize,
+  theme
+}) => {
   if (customSize) return getExtendedFabDimensions(customSize);
   const {
     isV3
@@ -361,4 +352,30 @@ const getExtendedFabStyle = _ref10 => {
   return isV3 ? v3Extended : extended;
 };
 exports.getExtendedFabStyle = getExtendedFabStyle;
+let cachedContext = null;
+const getCanvasContext = () => {
+  if (cachedContext) {
+    return cachedContext;
+  }
+  const canvas = document.createElement('canvas');
+  cachedContext = canvas.getContext('2d');
+  return cachedContext;
+};
+const getLabelSizeWeb = ref => {
+  if (_reactNative.Platform.OS !== 'web' || ref.current === null) {
+    return null;
+  }
+  const canvasContext = getCanvasContext();
+  if (!canvasContext) {
+    return null;
+  }
+  const elementStyles = window.getComputedStyle(ref.current);
+  canvasContext.font = elementStyles.font;
+  const metrics = canvasContext.measureText(ref.current.innerText);
+  return {
+    width: metrics.width,
+    height: (metrics.fontBoundingBoxAscent ?? 0) + (metrics.fontBoundingBoxDescent ?? 0)
+  };
+};
+exports.getLabelSizeWeb = getLabelSizeWeb;
 //# sourceMappingURL=utils.js.map

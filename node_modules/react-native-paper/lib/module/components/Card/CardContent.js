@@ -1,15 +1,8 @@
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 /**
  * A component to show content inside a Card.
- *
- * <div class="screenshots">
- *   <figure>
- *     <img class="small" src="screenshots/card-content-example.png" />
- *   </figure>
- * </div>
- *
  *
  * ## Usage
  * ```js
@@ -28,14 +21,13 @@ import { StyleSheet, View } from 'react-native';
  * export default MyComponent;
  * ```
  */
-const CardContent = _ref => {
-  let {
-    index,
-    total,
-    siblings,
-    style,
-    ...rest
-  } = _ref;
+const CardContent = ({
+  index,
+  total,
+  siblings,
+  style,
+  ...rest
+}) => {
   const cover = 'withInternalTheme(CardCover)';
   const title = 'withInternalTheme(CardTitle)';
   let contentStyle, prev, next;

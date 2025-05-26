@@ -1,15 +1,21 @@
 import color from 'color';
 import { black, white } from '../../styles/themes/v2/colors';
-export const getCardCoverStyle = _ref => {
-  let {
-    theme,
-    index,
-    total
-  } = _ref;
+export const getCardCoverStyle = ({
+  theme,
+  index,
+  total,
+  borderRadiusStyles
+}) => {
   const {
     isV3,
     roundness
   } = theme;
+  if (Object.keys(borderRadiusStyles).length > 0) {
+    return {
+      borderRadius: 3 * roundness,
+      ...borderRadiusStyles
+    };
+  }
   if (isV3) {
     return {
       borderRadius: 3 * roundness
@@ -33,10 +39,9 @@ export const getCardCoverStyle = _ref => {
   }
   return undefined;
 };
-const getBorderColor = _ref2 => {
-  let {
-    theme
-  } = _ref2;
+const getBorderColor = ({
+  theme
+}) => {
   if (theme.isV3) {
     return theme.colors.outline;
   }
@@ -45,11 +50,10 @@ const getBorderColor = _ref2 => {
   }
   return color(black).alpha(0.12).rgb().string();
 };
-const getBackgroundColor = _ref3 => {
-  let {
-    theme,
-    isMode
-  } = _ref3;
+const getBackgroundColor = ({
+  theme,
+  isMode
+}) => {
   if (theme.isV3) {
     if (isMode('contained')) {
       return theme.colors.surfaceVariant;
@@ -60,11 +64,10 @@ const getBackgroundColor = _ref3 => {
   }
   return undefined;
 };
-export const getCardColors = _ref4 => {
-  let {
-    theme,
-    mode
-  } = _ref4;
+export const getCardColors = ({
+  theme,
+  mode
+}) => {
   const isMode = modeToCompare => {
     return mode === modeToCompare;
   };

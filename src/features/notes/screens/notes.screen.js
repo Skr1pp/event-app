@@ -378,6 +378,7 @@ export const NotesScreen = ({ navigation }) => {
                     keyword={keyword}
                     selected={selectedNotes.includes(item.id)}
                   />
+                  
                 </TouchableOpacity>
               </View>
             )}

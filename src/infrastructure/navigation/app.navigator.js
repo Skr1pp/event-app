@@ -4,10 +4,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NotesNavigator } from "./notes.navigator";
 import { SettingsNavigator } from "./settings.navigator";
 import { NotesContextProvider } from "../../services/notes/notes.context";
+import { EventTypesNavigator } from './event-types.navigator';
 const Tab = createBottomTabNavigator();
 const TAB_ICONS = {
   Notes: [Ionicons, "list"],
   Settings: [Ionicons, "settings"],
+  EventTypes: [Ionicons, "calendar"], // Добавьте подходящую иконку
 };
 const TAB_ICONS_COLORS = {
   Active: "#ffffff",
@@ -15,7 +17,12 @@ const TAB_ICONS_COLORS = {
 };
 
 const createScreenOptions = ({ route }) => {
-  const [IconComponent, iconName] = TAB_ICONS[route.name];
+  if (!TAB_ICONS[route.name]) {
+    console.warn(`No icon configured for route: ${route.name}`);
+  }
+  const iconConfig = TAB_ICONS[route.name] || [Ionicons, "help"]; // Значение по умолчанию
+  const [IconComponent, iconName] = iconConfig;
+  
   return {
     headerShown: false,
     tabBarIcon: ({ focused, size }) => {
@@ -48,7 +55,12 @@ export const AppNavigator = () => {
         <Tab.Screen
           name="Settings"
           component={SettingsNavigator}
-          options={{ tabBarLabel: "ВИДЫ.Мероприятий" }}
+          options={{ tabBarLabel: "Настройки" }}
+        />
+        <Tab.Screen
+        name="EventTypes"
+        component={EventTypesNavigator} // Исправьте на правильный компонент
+        options={{ tabBarLabel: "ВИДЫ.Мероприятий" }}
         />
       </Tab.Navigator>
     </NotesContextProvider>

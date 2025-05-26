@@ -1,17 +1,10 @@
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import TouchableRipple from '../TouchableRipple/TouchableRipple';
 import Text from '../Typography/Text';
 /**
  * A component to show a single cell inside of a table.
- *
- * <div class="screenshots">
- *   <figure>
- *     <img class="medium" src="screenshots/data-table-row-cell.png" />
- *   </figure>
- * </div>
- *
  *
  * ## Usage
  * ```js
@@ -32,22 +25,42 @@ import Text from '../Typography/Text';
  *
  * If you want to support multiline text, please use View instead, as multiline text doesn't comply with
  * MD Guidelines (https://github.com/callstack/react-native-paper/issues/2381).
+ *
+ * @extends TouchableRipple props https://callstack.github.io/react-native-paper/docs/components/TouchableRipple
  */
-
-const DataTableCell = _ref => {
-  let {
-    children,
-    textStyle,
-    style,
-    numeric,
-    ...rest
-  } = _ref;
+const DataTableCell = ({
+  children,
+  textStyle,
+  style,
+  numeric,
+  maxFontSizeMultiplier,
+  testID,
+  ...rest
+}) => {
   return /*#__PURE__*/React.createElement(TouchableRipple, _extends({}, rest, {
+    testID: testID,
     style: [styles.container, numeric && styles.right, style]
-  }), /*#__PURE__*/React.createElement(Text, {
-    style: textStyle,
-    numberOfLines: 1
+  }), /*#__PURE__*/React.createElement(CellContent, {
+    textStyle: textStyle,
+    testID: testID,
+    maxFontSizeMultiplier: maxFontSizeMultiplier
   }, children));
+};
+const CellContent = ({
+  children,
+  textStyle,
+  maxFontSizeMultiplier,
+  testID
+}) => {
+  if (/*#__PURE__*/React.isValidElement(children)) {
+    return children;
+  }
+  return /*#__PURE__*/React.createElement(Text, {
+    style: textStyle,
+    numberOfLines: 1,
+    maxFontSizeMultiplier: maxFontSizeMultiplier,
+    testID: `${testID}-text-container`
+  }, children);
 };
 DataTableCell.displayName = 'DataTable.Cell';
 const styles = StyleSheet.create({
